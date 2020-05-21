@@ -3,6 +3,7 @@
  * This is only a minimal backend to get started.
  **/
 import { Server } from 'hapi';
+import { stockApi } from './app/stocksApi'
 
 const init = async () => {
   const server = new Server({
@@ -19,6 +20,18 @@ const init = async () => {
       };
     }
   });
+
+  server.route({
+    method: 'POST',
+    path: '/api/stock',
+    handler: stockApi,
+    options: {
+      cache: {
+        expiresIn: 60000,
+        privacy: 'private'
+      }
+    }
+  })
 
   await server.start();
   console.log('Server running on %s', server.info.uri);

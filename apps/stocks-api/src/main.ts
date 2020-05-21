@@ -3,6 +3,7 @@
  * This is only a minimal backend to get started.
  **/
 import { Server } from 'hapi';
+import { stockApi } from './app/stockApi/stockApi';
 
 const init = async () => {
   const server = new Server({
@@ -18,6 +19,12 @@ const init = async () => {
         hello: 'world'
       };
     }
+  });
+
+  server.route({
+    method: 'POST',
+    path: '/api/stock',
+    handler: stockApi
   });
 
   await server.start();

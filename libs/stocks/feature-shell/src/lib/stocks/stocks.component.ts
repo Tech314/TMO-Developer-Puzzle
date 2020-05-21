@@ -10,25 +10,19 @@ import { PriceQueryFacade } from '@coding-challenge/stocks/data-access-price-que
 export class StocksComponent implements OnInit {
   stockPickerForm: FormGroup;
   symbol: string;
-  period: string;
+  today = new Date();
+  startDate: Date;
+  endDate: Date;
 
   quotes$ = this.priceQuery.priceQueries$;
-
-  timePeriods = [
-    { viewValue: 'All available data', value: 'max' },
-    { viewValue: 'Five years', value: '5y' },
-    { viewValue: 'Two years', value: '2y' },
-    { viewValue: 'One year', value: '1y' },
-    { viewValue: 'Year-to-date', value: 'ytd' },
-    { viewValue: 'Six months', value: '6m' },
-    { viewValue: 'Three months', value: '3m' },
-    { viewValue: 'One month', value: '1m' }
-  ];
 
   constructor(private fb: FormBuilder, private priceQuery: PriceQueryFacade) {
     this.stockPickerForm = fb.group({
       symbol: [null, Validators.required],
-      period: [null, Validators.required]
+      customDateRange: fb.group({
+        startDate: [new Date(this.today.getFullYear(), this.today.getMonth() - 1, this.today.getDate()), Validators.required],
+        endDate: [this.today, Validators.required]
+      })
     });
   }
 
@@ -36,8 +30,23 @@ export class StocksComponent implements OnInit {
 
   fetchQuote() {
     if (this.stockPickerForm.valid) {
-      const { symbol, period } = this.stockPickerForm.value;
-      this.priceQuery.fetchQuote(symbol, period);
+      const { symbol, customDateRange } = this.stockPickerForm.value;
+      const { startDate, endDate} = customDateRange;
+      const diff = endDate.getTime() - startDate.getTime();
+      const range = Math.ceil(diff / (1000 * 3600 * 24));
+      const month = endDate.getMonth() < 10 ? `0${endDate.getMonth()}` : endDate.getMonth();
+      const date = `${endDate.getFullYear()}${month}${endDate.getDate()}`
+      this.priceQuery.fetchQuote(symbol, date, range);
+    }
+  }
+
+  validateStartDate() {
+    const { startDate, endDate } = this.stockPickerForm.value.customDateRange;
+    if (startDate.getTime() > endDate.getTime()) {
+      this.stockPickerForm.controls['customDateRange'].setValue({
+        startDate: endDate,
+        endDate: endDate
+      });
     }
   }
 }

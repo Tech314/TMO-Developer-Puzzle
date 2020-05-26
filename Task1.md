@@ -2,7 +2,7 @@
 
 ## What is done well?
 
-The use of the facade design pattern and ngrx store. The files written are compact and well organized. The use of a proxy to solve the issue of CORS restrictions.
+The way the project is set up. The separation between the UI logic and the business logic to decouple the UI from the technology being used.The grouping of libraries into logical feature groups to allow for easier scalability.
 
 ## What would you change?
 
